@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # FishIDE, a perfect IDE made in GNU Nano 8.6 in BASH specifcially FISH Terminal
 # FishIDE Version 1, Beta.
 
@@ -18,7 +20,7 @@ echo
 
 #COMMANDS
 print() { echo "$@"; }
-mf() { mkdir "$1"; }
+makefile() { mkdir "$1"; }
 goto() { cd "$1" || Print "Directory not found"; }
 goback() {
     steps=${1:-1}
@@ -36,7 +38,16 @@ math() {
 update() {
     sudo pacman -Syu
 }
+get() { git "$@"; }
 
-# |--------------------------------------------------------|
-# |  -!- CODE WORKSPACE AREA -!- CODE WORKSPACE AREA -!-   |
-# |--
+install() {
+  sudo pacman -S "$@"
+}
+
+#for get
+FishApps() {
+  sudo pacman -S "git"
+}
+# |--------------------------------------------------->
+# |  -!- CODE WORKSPACE AREA -!- CODE WORKSPACE AREA ->
+# |--------------------------------------------------->
