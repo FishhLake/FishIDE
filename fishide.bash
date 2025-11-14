@@ -1,4 +1,3 @@
-  GNU nano 8.7                                     FishIDE_TEST1                                                
 # FishIDE, a perfect IDE made in GNU Nano 8.6 in BASH specifcially FISH Terminal
 # FishIDE Version 1, Beta.
 
