@@ -1,8 +1,7 @@
 #!/bin/bash
-export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
-set -o vi
 
-#FISH v6
+# FISH v1
+
 
 # COLORS
 FISH_COLOR="\e[38;2;40;95;160m"
@@ -15,7 +14,7 @@ FISH_OK="\e[38;2;0;140;95m"
 FISH_ERROR="\e[38;2;180;50;50m"
 FISH_WARN="\e[38;2;200;150;40m"
 
-echo -e "${FISH_COLOR} Welcome to FISH v6${RESET}"
+echo -e "${FISH_COLOR} Welcome to FISH v1${RESET}"
 echo -e "${FISH_HIGHLIGHT} ----------------------------------------------------------------------------- ${RESET}"
 echo
 
@@ -57,13 +56,12 @@ goto() {
     cd "$1" 2>/dev/null || { err "directory not found"; return; }
 }
 
-goback() {
-    steps=${1:-1}
+goback() {     steps=${1:-1}
     for ((i=0;i<steps;i++)); do
         cd .. 2>/dev/null || { err "already at root"; return; }
     done
 }
-
+ 
 delete() {
     target="$1"
 
@@ -86,7 +84,7 @@ delete() {
     [[ "$ans" =~ ^[Yy]$ ]] || { warn "cancelled"; return; }
     rm -rf -- "$target" && ok "deleted $target"
 }
-
+ 
 view() { ls --color=always -lah "$@"; }
 
 wait() { sleep "${1:-1}"; ok "waited ${1:-1} second(s)"; }
@@ -96,13 +94,13 @@ math() {
     [[ -z "$result" ]] && { err "invalid math expression"; return; }
     echo "$result"
 }
-
-update() { 
+ 
+update() {
     echo -e "${FISH_HIGHLIGHT}Updating system...${RESET}"
     progress_bar 30
     sudo pacman -Syu && ok "system updated" || err "update failed"
 }
-
+ 
 get() { git clone "$@" && ok "cloned repo" || err "clone failed"; }
 
 install() { sudo pacman -S "$@" && ok "installed" || err "install failed"; }
@@ -134,7 +132,7 @@ hardware() { fastfetch; }
 disks() { lsblk; }
 mdisks() { sudo fdisk -l; }
 
-ver() { echo "FISH v6 (2025)"; }
+ver() { echo "FISH v1 (2025)"; }
 
 open() {
     [[ -z "$1" ]] && { err "file required"; return; }
@@ -146,9 +144,9 @@ open() {
         *) xdg-open "$1" 2>/dev/null || err "cannot open file" ;;
     esac
 }
-
+ 
 help() {
-    echo "FISH v6 Commands:"
+    echo "FISH v1 Commands:"
     echo "  print <msg>"
     echo "  makefile <name>"
     echo "  makefolder <dir>"
@@ -170,10 +168,10 @@ help() {
     echo "  whereami"
     echo "  close/exit"
 }
-
+ 
 close() { exit 0; }
 
-# fishShell
+#fishShell
 while true; do
     echo -ne "${FISH_COLOR}⟦FISH⟧» ${RESET}"
 
@@ -207,13 +205,9 @@ while true; do
         open) open "${args[@]}" ;;
         whereami) whereami ;;
         close|exit) close ;;
-        "") ;;
         *)
-            if command -v "$cmd" >/dev/null 2>&1; then
-                "$cmd" "${args[@]}"
-            else
-                err "unknown command: $cmd"
-            fi
-            ;;
+          err "unknown command: $cmd"
+           ;;
+
     esac
 done
