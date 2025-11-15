@@ -15,7 +15,7 @@ FISH_OK="\e[38;2;0;140;95m"
 FISH_ERROR="\e[38;2;180;50;50m"
 FISH_WARN="\e[38;2;200;150;40m"
 
-echo -e "${FISH_COLOR} Welcome to FISH v7${RESET}"
+echo -e "${FISH_COLOR} Welcome to FISH v6${RESET}"
 echo -e "${FISH_HIGHLIGHT} ----------------------------------------------------------------------------- ${RESET}"
 echo
 
