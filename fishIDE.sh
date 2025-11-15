@@ -1,198 +1,219 @@
 #!/bin/bash
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+set -o vi
 
-# FishIDE, a perfect IDE.Toolkit.Shell made in GNU Nano 8.7 in BASH
-# FishIDE Version 5
+#FISH v6
 
-#COLORS
-FISHIDE_COLOR="\e[38;2;40;95;160m"
-FISHIDE_BORDER="\e[38;2;100;130;170m"
-FISHIDE_HIGHLIGHT="\e[38;2;30;150;170m"
+# COLORS
+FISH_COLOR="\e[38;2;40;95;160m"
+FISH_BORDER="\e[38;2;100;130;170m"
+FISH_HIGHLIGHT="\e[38;2;30;150;170m"
 RESET="\e[0m"
 
 # STATUS COLORS
-FISHIDE_OK="\e[38;2;0;140;95m"
-FISHIDE_ERROR="\e[38;2;180;50;50m"
-FISHIDE_WARN="\e[38;2;200;150;40m"
+FISH_OK="\e[38;2;0;140;95m"
+FISH_ERROR="\e[38;2;180;50;50m"
+FISH_WARN="\e[38;2;200;150;40m"
 
-echo -e "${FISHIDE_COLOR} Welcome to FishIDE v4${RESET}"
-echo -e "${FISHIDE_HIGHLIGHT} ----------------------------------------------------------------------------- ${RESET}"
+echo -e "${FISH_COLOR} Welcome to FISH v7${RESET}"
+echo -e "${FISH_HIGHLIGHT} ----------------------------------------------------------------------------- ${RESET}"
 echo
 
-status_ok() {
-    echo -e "${FISHIDE_OK}✔ fishIDE: $1${RESET}"
-}
+ok() { echo -e "${FISH_OK}✔ $1${RESET}"; }
+err() { echo -e "${FISH_ERROR}✘ $1${RESET}"; }
+warn() { echo -e "${FISH_WARN}! $1${RESET}"; }
 
-status_error() {
-    echo -e "${FISHIDE_ERROR}✘ fishIDE: $1${RESET}"
-}
-
-status_warn() {
-    echo -e "${FISHIDE_WARN}! fishIDE: $1${RESET}"
-}
 # PROGRESS BAR
 progress_bar() {
     total=$1
-    for ((i=1; i<=total; i++)); do
-        percentage=$(( i * 100 / total ))
-        bar=$(printf "%-${i}s" "#" )
-        spaces=$(printf "%$((total-i))s" "")
-        echo -ne "${FISHIDE_HIGHLIGHT}[${bar}${spaces}] ${percentage}%\r${RESET}"
-        sleep 0.05
+    width=40
+    for ((i=1;i<=total;i++)); do
+        percent=$(( i * 100 / total ))
+        filled=$(( percent * width / 100 ))
+        bar=$(printf "%-${width}s" | tr ' ' '#')
+        bar="${bar:0:filled}"
+
+        echo -ne "${FISH_HIGHLIGHT}[${bar}] ${percent}%\r${RESET}"
+        sleep 0.03
     done
     echo
 }
-# FISH EXECUTE // SYNTAX HIGHLIGHTER
-fish_execute() {
-    command=$1
-    shift
 
-    if $command "$@"; then
-        status_ok "$command completed"
-    else
-        status_error "$command failed"
-    fi
+# COMMANDS
+print() { echo "$@"; }
+
+makefile() {
+    [[ -z "$1" ]] && { err "filename required"; return; }
+    touch "$1" && ok "created file $1"
 }
 
-
-# COMMANDS // FishScript
-print() { echo "$@"; }                          
-
-makefolder() { 
-    mkdir "$1" && status_ok "created folder '$1'" || status_error "failed to create folder"
+makefolder() {
+    [[ -z "$1" ]] && { err "directory name required"; return; }
+    mkdir -p "$1" && ok "created folder $1"
 }
 
-makefile() { 
-    touch "$1" && status_ok "created file '$1'" || status_error "failed to create file"
-}
-
-goto() { 
-    cd "$1" || { status_error "directory not found"; return; }
-    status_ok "moved to '$1'"
+goto() {
+    [[ -z "$1" ]] && { err "path required"; return; }
+    cd "$1" 2>/dev/null || { err "directory not found"; return; }
 }
 
 goback() {
     steps=${1:-1}
-    for ((i=0; i < steps; i++)); do
-        cd ..
+    for ((i=0;i<steps;i++)); do
+        cd .. 2>/dev/null || { err "already at root"; return; }
     done
-    status_ok "went back $steps step(s)"
 }
 
 delete() {
-    if [[ -z "$1" ]]; then
-        status_warn "fish says: no directory found"
-        return 1
+    target="$1"
+
+    [[ -z "$target" ]] && { err "nothing to delete"; return; }
+
+    protected=("/" "/home" "/root" "/etc" "/usr" "/bin" "/sbin" "/lib" "/lib64" "." "..")
+
+    for p in "${protected[@]}"; do
+        [[ "$target" == "$p" ]] && { err "protected path: $p"; return; }
+    done
+
+    if [[ ! -e "$target" ]]; then
+        err "file not found"
+        return
     fi
 
-    if [[ "$1" = "/" ]]; then
-        status_warn "the fish guardian has saved you."
-        return 1
-    fi
+    echo "Delete '$target'? (y/N)"
+    read -r ans
 
-    echo "Delete '$1'? (y/N)"
-    read answer
-    [[ "$answer" =~ ^[Yy]$ ]] || { status_warn "cancelled"; return; }
-
-    progress_bar 20
-    sudo rm -rf -- "$1" && status_ok "deleted '$1'" || status_error "delete failed"
+    [[ "$ans" =~ ^[Yy]$ ]] || { warn "cancelled"; return; }
+    rm -rf -- "$target" && ok "deleted $target"
 }
 
-close() { exit; }
+view() { ls --color=always -lah "$@"; }
 
-wait() { sleep "$1"; status_ok "waited $1 second(s)"; }
-
-view() { ls; status_ok "listed files"; }
+wait() { sleep "${1:-1}"; ok "waited ${1:-1} second(s)"; }
 
 math() {
-    expr="$*"
-    result=$(echo "$expr" | bc)
+    result=$(echo "$*" | bc -l 2>/dev/null)
+    [[ -z "$result" ]] && { err "invalid math expression"; return; }
     echo "$result"
-    status_ok "✔ math complete"
 }
 
 update() { 
-    echo -e "${FISHIDE_HIGHLIGHT}Updating system...${RESET}"
+    echo -e "${FISH_HIGHLIGHT}Updating system...${RESET}"
     progress_bar 30
-    sudo pacman -Syu && status_ok "system updated" || status_error "update failed"
+    sudo pacman -Syu && ok "system updated" || err "update failed"
 }
 
-get() { git clone "$@" && status_ok "cloned repo" || status_error "clone failed"; }
+get() { git clone "$@" && ok "cloned repo" || err "clone failed"; }
 
-install() { sudo pacman -S "$@" && status_ok "installed package" || status_error "installation failed"; }
+install() { sudo pacman -S "$@" && ok "installed" || err "install failed"; }
 
 run() {
-    case "$1" in
-        *.py)  python3 "$1" ;;
-        *.lua) lua "$1" ;;
-        *.sh)  bash "$1" ;;
-        *)     echo "✘ unknown file type" ;;
+    file="$1"
+    [[ -z "$file" ]] && { err "file required"; return; }
+    [[ ! -f "$file" ]] && { err "file not found"; return; }
+
+    case "$file" in
+        *.py) python3 "$file" ;;
+        *.lua) lua "$file" ;;
+        *.sh) bash "$file" ;;
+        *) warn "unknown file type"; return ;;
     esac
 }
 
+copy() { cp "$1" "$2" && ok "copied" || err "copy failed"; }
 
-fishPrograms() { sudo pacman -S git bc && status_ok "installed fish programs"; }
+move() { mv "$1" "$2" && ok "moved" || err "move failed"; }
 
-copy() { cp "$@" && status_ok "copied" || status_error "copy failed"; }
+connect() { ssh "$@" && ok "connected" || err "connection failed"; }
 
-connect() { ssh "$@" && status_ok "connected" || status_error "connection failed"; }
+edit() { nano "$1"; }
+
+whereami() { pwd; }
+
+hardware() { fastfetch; }
+disks() { lsblk; }
+mdisks() { sudo fdisk -l; }
+
+ver() { echo "FISH v7 (2025)"; }
+
+open() {
+    [[ -z "$1" ]] && { err "file required"; return; }
+    [[ ! -e "$1" ]] && { err "file not found"; return; }
+
+    case "$1" in
+        *.txt|*.md|*.sh|*.py|*.lua) nano "$1" ;;
+        *.png|*.jpg|*.jpeg) xdg-open "$1" ;;
+        *) xdg-open "$1" 2>/dev/null || err "cannot open file" ;;
+    esac
+}
 
 help() {
-    echo "fishIDE v5 Interactive Shell"
-    echo
-    echo "Commands:"
-    echo "  print <msg>       - print a message"
-    echo "  makefile <name>   - create a new file"
-    echo "  makefolder <dir>  - create new folder"
-    echo "  goto <dir>        - cd into folder"
-    echo "  goback <n>        - go back directories"
-    echo "  delete <file>     - delete file/dir"
-    echo "  view              - list files"
-    echo "  math <expr>       - calculate number"
-    echo "  get <url>         - git clone"
-    echo "  install <pkg>     - pacman install"
-    echo "  run <file>        - execute file"
-    echo "  connect <user@ip> - SSH connect"
-    echo "  close/exit        - exit shell"
+    echo "FISH v7 Commands:"
+    echo "  print <msg>"
+    echo "  makefile <name>"
+    echo "  makefolder <dir>"
+    echo "  goto <dir>"
+    echo "  goback <n>"
+    echo "  delete <file>"
+    echo "  view"
+    echo "  math <expr>"
+    echo "  install <pkg>"
+    echo "  get <url>"
+    echo "  run <file>"
+    echo "  edit <file>"
+    echo "  open <file>"
+    echo "  connect <user@host>"
+    echo "  hardware"
+    echo "  disks"
+    echo "  mdisks"
+    echo "  ver"
+    echo "  whereami"
+    echo "  close/exit"
 }
 
-Game() { 
-makefile SECONDSCOUNTER.sh;
-echo "count=0" >> SECONDSCOUNTER.sh;
-echo "while true; do" >> SECONDSCOUNTER.sh;
-echo "    count=\$((count+1))" >> SECONDSCOUNTER.sh;
-echo "    echo \"\$count\"" >> SECONDSCOUNTER.sh;
-echo "    sleep 1" >> SECONDSCOUNTER.sh;
-echo "done" >> SECONDSCOUNTER.sh;
-    chmod +x SECONDSCOUNTER.sh
-    ./SECONDSCOUNTER.sh
-}
+close() { exit 0; }
 
-# Fshell // FishShell
+# fishShell
 while true; do
-    echo -ne "${FISHIDE_COLOR}fishIDE> ${RESET}"
-    read -r cmd args
+    echo -ne "${FISH_COLOR}⟦FISH⟧» ${RESET}"
+
+    read -r -a parts
+    cmd="${parts[0]}"
+    args=("${parts[@]:1}")
 
     case "$cmd" in
         help) help ;;
-        print) print $args ;;
-        makefile) makefile $args ;;
-        makefolder) makefolder $args ;;
-        goto) goto $args ;;
-        goback) goback $args ;;
-        delete) delete $args ;;
-        view) view ;;
-        wait) wait $args ;;
-        math) math $args ;;
-        get) get $args ;;
-        install) install $args ;;
-        run) run $args ;;
-        copy) copy $args ;;
-        connect) connect $args ;;
-        game) Game ;;
-        close|exit) close ;;
+        print) print "${args[@]}" ;;
+        makefile) makefile "${args[@]}" ;;
+        makefolder) makefolder "${args[@]}" ;;
+        goto) goto "${args[@]}" ;;
+        goback) goback "${args[@]}" ;;
+        delete) delete "${args[@]}" ;;
+        view) view "${args[@]}" ;;
+        wait) wait "${args[@]}" ;;
+        math) math "${args[@]}" ;;
+        get) get "${args[@]}" ;;
+        install) install "${args[@]}" ;;
+        run) run "${args[@]}" ;;
+        copy) copy "${args[@]}" ;;
+        move) move "${args[@]}" ;;
+        connect) connect "${args[@]}" ;;
         update) update ;;
-        fishPrograms) fishPrograms ;;
+        hardware) hardware ;;
+        disks) disks ;;
+        mdisks) mdisks ;;
+        ver) ver ;;
+        edit) edit "${args[@]}" ;;
+        open) open "${args[@]}" ;;
+        whereami) whereami ;;
+        close|exit) close ;;
         "") ;;
-        *) echo -e "${FISHIDE_ERROR}Unknown command: $cmd${RESET}" ;;
+        *)
+            if command -v "$cmd" >/dev/null 2>&1; then
+                "$cmd" "${args[@]}"
+            else
+                err "unknown command: $cmd"
+            fi
+            ;;
     esac
 done
