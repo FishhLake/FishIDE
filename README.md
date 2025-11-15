@@ -1,9 +1,11 @@
-# fishIDE to make programming stupidly easy
+### fishIDE v5 ###
+### A lightweight developer shell + userland IDE, built entirely in Bash ###
+=============================================================================
 
-**fishIDE** is a very lightweight versatile utility tool, that aims to combat big and heavy IDEs.
-**fishIDE** comes in at a small 2.2KB~ big. that is literally smaller than most word documents with the word "hi" in it.
-**fishIDE** aims to be fast, smooth, sleek, and very customizable. you can add a simple command in seconds. but hours for a name of it 😭
-**fishIDE** takes **MINUTES** to learn. it is the easiest language in the world to learn. it replaces trash coding terminology like:
-**ls, cd, mkdir, ssh ..** for **view, goto, makefile/makefolder and connect** better words to understand coding.
+fishIDE v5 comes in at **4-5~ kilobytes** in size.
 
-**learn FishScript. Join fishIDE today**
+fishIDE v5 operates entirely in a **single bash** script.
+
+fishIDE v5 is highly customizable, and user friendly.
+
+fishIDE v5 allows you to add **commands, and use them in the shell in under ~1 minute.**
