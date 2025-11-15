@@ -134,7 +134,7 @@ hardware() { fastfetch; }
 disks() { lsblk; }
 mdisks() { sudo fdisk -l; }
 
-ver() { echo "FISH v7 (2025)"; }
+ver() { echo "FISH v6 (2025)"; }
 
 open() {
     [[ -z "$1" ]] && { err "file required"; return; }
