@@ -148,7 +148,7 @@ open() {
 }
 
 help() {
-    echo "FISH v7 Commands:"
+    echo "FISH v6 Commands:"
     echo "  print <msg>"
     echo "  makefile <name>"
     echo "  makefolder <dir>"
