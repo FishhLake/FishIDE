@@ -22,9 +22,13 @@ echo
 
 print() { echo "$@"; } #prints
 
-makefile() { mkdir "$1"; } #makes a file
+makefolder() { mkdir "$1"; } #makes a folder
 
-goto() { cd "$1"|| Print "Directory not found"; } # changes directory.
+makefile() { touch "$1"; } # makes a file
+
+
+
+goto() { cd "$1"|| print "directory not found or doesnt exist"; } # changes directory.
 
 goback() {
     steps=${1:-1}
@@ -32,24 +36,46 @@ goback() {
         cd ..
     done
 } ## goes back a directory goback 2
- 
-delete() { sudo rm -rf "$1"; } #Force **DELETES** everything.
 
+delete() {
+    if [[ -z "$1" ]]; then
+        echo "fish says: no directory found"
+        return 1
+    fi
+
+    if [[ "$1" = "/" ]]; then
+        echo "the fish guardian has saved you."
+        return 1
+    fi
+
+    echo "Delete '$1'? (y/N)"
+    read answer
+    [[ "$answer" =~ ^[Yy]$ ]] || return
+
+    sudo rm -rf -- "$1"
+} #better delete
+ 
 close() { exit; } #closes / exits the terminal
 
 wait() { sleep "$1"; } #waits
 
-view() { ls; } # LS
+view() { ls; } #lists a directory
 
-math() { echo "$(( $* ))" } #Math.
- 
-update() { sudo pacman -Syu } #Updates system
- 
+math() { echo "$(( $* ))" } #math. it's literally... math.
+
+update() { sudo pacman -Syu } #updates system
+
 get() { git clone "$@"; } #uses Git to GET stuff
 
 install() { sudo pacman -S "$@" } # Installs using pm (can change)
 
 run() { chmod +x "$1" && ./"$1"; } #runs any shell / bash script.
+
+fishPrograms() { sudo pacman -S git } #Installs git.
+
+connect() {ssh "$@"; } #connects via ssh
+
+copy() {cp -vr "$@"; } #copies a file
 
 
 # |--------------------------------------------------------| #
@@ -57,3 +83,4 @@ run() { chmod +x "$1" && ./"$1"; } #runs any shell / bash script.
 # |--------------------------------------------------------| #
 ##############################################################
 # CODE HERE TO START FISHING !!
+
