@@ -1,41 +1,34 @@
 #!/bin/bash
 
-# FishIDE, a perfect IDE made in GNU Nano 8.7 in BASH specifcially FISH Terminal
-# FishIDE Version 2. full release.
+# FishIDE, a perfect IDE made in GNU Nano 8.7 in BASH specifically for FISH Terminal
+# FishIDE Version 2 — full release.
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-#COLORS
+# COLORS
 FISHIDE_COLOR="\e[38;2;0;166;255m"
 FISHIDE_BORDER="\e[38;2;0;119;204m"
 FISHIDE_HIGHLIGHT="\e[38;2;51;207;255m"
 RESET="\e[0m"
 
-#--------------------------------------------------------
 echo -e "${FISHIDE_COLOR} Welcome to FishIDE${RESET}"
-echo -e "${FISHIDE_HIGHLIGHT} 🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟🐟${RESET}"
+echo -e "${FISHIDE_HIGHLIGHT} ----------------------------------------------------------------------------- ${RESET}"
 echo
-#--------------------------------------------------------
 
-#COMMANDS // FishScript
+# COMMANDS // FishScript
 
-print() { echo "$@"; } #prints
+print() { echo "$@"; }                          # prints
 
-makefolder() { mkdir "$1"; } #makes a folder
+makefolder() { mkdir "$1"; }                     # makes a folder
 
-makefile() { touch "$1"; } # makes a file
+makefile() { touch "$1"; }                       # makes a file
 
-
-
-goto() { cd "$1"|| print "directory not found or doesnt exist"; } # changes directory.
+goto() { cd "$1" || print "directory not found or doesn't exist"; }   # changes directory
 
 goback() {
     steps=${1:-1}
-    for ((i=0; i<steps; i++)); do
+    for ((i=0; i < steps; i++)); do
         cd ..
     done
-} ## goes back a directory goback 2
+}
 
 delete() {
     if [[ -z "$1" ]]; then
@@ -53,34 +46,36 @@ delete() {
     [[ "$answer" =~ ^[Yy]$ ]] || return
 
     sudo rm -rf -- "$1"
-} #better delete
- 
-close() { exit; } #closes / exits the terminal
+}
 
-wait() { sleep "$1"; } #waits
+close() { exit; }
 
-view() { ls; } #lists a directory
+wait() { sleep "$1"; }
 
-math() { echo "$(( $* ))" } #math. it's literally... math.
+view() { ls; }
 
-update() { sudo pacman -Syu } #updates system
+math() { echo "$(( $* ))"; }
 
-get() { git clone "$@"; } #uses Git to GET stuff
+update() { sudo pacman -Syu; }
 
-install() { sudo pacman -S "$@" } # Installs using pm (can change)
+get() { git clone "$@"; }
 
-run() { chmod +x "$1" && ./"$1"; } #runs any shell / bash script.
+install() { sudo pacman -S "$@"; }
 
-fishPrograms() { sudo pacman -S git } #Installs git.
+run() { chmod +x "$1" && ./"$1"; }
 
-connect() {ssh "$@"; } #connects via ssh
+fishPrograms() { sudo pacman -S git; }
 
-copy() {cp -vr "$@"; } #copies a file
+copy() { cp "$@"; }
 
+connect() { ssh "$@"; }
 
-# |--------------------------------------------------------| #
-# |  -!- CODE WORKSPACE AREA -!- CODE WORKSPACE AREA -!-   | #
-# |--------------------------------------------------------| #
-##############################################################
-# CODE HERE TO START FISHING !!
+help() {
+    echo "fishIDE is a lightweight, powerful IDE toolbox."
+}
 
+# |--------------------------------------------------------|
+# |  -!- CODE WORKSPACE AREA -!- CODE WORKSPACE AREA -!-   |
+# |--------------------------------------------------------|
+
+help
