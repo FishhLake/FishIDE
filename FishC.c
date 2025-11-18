@@ -86,8 +86,7 @@
        //SYSINFO
         else if (strcmp(cmd, "SYSINFO") == 0) {
             printf("SYSINFO:\n");
-            // print system information
-
+            
             struct utsname name;
             if (uname(&name) == -1) {
                 perror("uname");
